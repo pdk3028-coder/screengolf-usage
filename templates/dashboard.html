@@ -294,6 +294,16 @@
         background: #fff;
     }
 
+    /* 총 금액 영역 (tfoot) */
+    tfoot tr {
+        /* display: flex; 제거 -> 테이블 레이아웃(colspan) 사용 */
+        background: #f8f9fa;
+    }
+
+    tfoot td {
+        /* border: none; padding: 0; display: inline-block; 등 제거 */
+    }
+
     .modal-header h3 {
         margin: 0;
         font-size: 1.25rem;
@@ -392,10 +402,42 @@
         /* 모바일에서 상품명(첫번째 컬럼)은 줄바꿈 허용하여 표 너비 확보 */
         table th:nth-child(1),
         table td:nth-child(1) {
-            white-space: normal !important;
-            word-break: keep-all;
-            min-width: 60px;
-            /* 너무 좁아지지 않게 */
+            white-space: nowrap !important;
+            /* 다시 줄바꿈 방지 (짧다고 하셨음) */
+            width: auto !important;
+            /* 자동 너비 */
+        }
+
+        /* 나머지 컬럼들 너비 강제 축소 및 오버라이드 */
+        table th:nth-child(2),
+        table td:nth-child(2) {
+            width: 110px !important;
+            /* 수량 컬럼 */
+        }
+
+        table th:nth-child(3),
+        table td:nth-child(3) {
+            width: 90px !important;
+            /* 소계 컬럼 */
+        }
+
+        table th:nth-child(4),
+        table td:nth-child(4) {
+            width: 60px !important;
+            /* 관리 컬럼 */
+        }
+
+        /* 수량 조절 버튼/인풋 크기 모바일에서 축소 */
+        .qty-btn {
+            width: 30px !important;
+            height: 30px !important;
+            font-size: 1rem !important;
+        }
+
+        .qty-input {
+            width: 40px !important;
+            height: 30px !important;
+            font-size: 1rem !important;
         }
     }
 
