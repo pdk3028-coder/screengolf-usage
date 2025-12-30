@@ -47,11 +47,14 @@
                 </tr>
             </tbody>
             <tfoot>
-                <tr style="border-top: 2px solid #333;">
-                    <td colspan="2" style="text-align: right; padding: 15px; font-weight: bold;">총 금액</td>
-                    <td colspan="2"
-                        style="text-align: right; padding: 15px; font-weight: bold; font-size: 1.2rem; color: #e74c3c;">
-                        <span id="total-amount">0</span>원
+                <tr style="border-top: 2px solid #333; background: #f8f9fa;">
+                    <td colspan="4" style="padding: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span style="font-weight: bold;">총 금액</span>
+                            <span style="font-weight: bold; font-size: 1.2rem; color: #e74c3c;">
+                                <span id="total-amount">0</span>원
+                            </span>
+                        </div>
                     </td>
                 </tr>
             </tfoot>
@@ -373,7 +376,7 @@
             font-size: 1rem;
         }
 
-        /* 버튼 크기만 살짝 키움 (터치 편의상 유지 권장) */
+        /* 상품 버튼 */
         .product-btn {
             padding: 15px;
         }
@@ -385,87 +388,15 @@
         .product-btn span:last-child {
             font-size: 0.9rem !important;
         }
-    }
 
-    /* 수량 조절 버튼 우측 정렬 보정 */
-    .qty-control {
-        margin-left: auto;
-    }
-
-    /* 이용 내역 테이블 */
-    .table-responsive tbody td:nth-of-type(1):before {
-        content: "이용날짜";
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        color: #666;
-    }
-
-    .table-responsive tbody td:nth-of-type(2):before {
-        content: "상품";
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        color: #666;
-    }
-
-    .table-responsive tbody td:nth-of-type(3):before {
-        content: "수량";
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        color: #666;
-    }
-
-    .table-responsive tbody td:nth-of-type(4):before {
-        content: "금액";
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        color: #666;
-    }
-
-    /* 빈 내역 메시지 처리 */
-    #empty-cart-msg td,
-    .table-responsive tr td[colspan] {
-        text-align: center;
-        padding: 30px;
-        display: block;
-        width: 100%;
-    }
-
-    #empty-cart-msg td:before,
-    .table-responsive tr td[colspan]:before {
-        content: none !important;
-    }
-
-    /* 총 금액 영역 (tfoot) */
-    tfoot tr {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        background: #f8f9fa;
-    }
-
-    tfoot td {
-        display: inline-block;
-        border: none;
-        padding: 0;
-        width: auto;
-        text-align: right;
-    }
-
-    tfoot td:first-child {
-        text-align: left;
+        /* 모바일에서 상품명(첫번째 컬럼)은 줄바꿈 허용하여 표 너비 확보 */
+        table th:nth-child(1),
+        table td:nth-child(1) {
+            white-space: normal !important;
+            word-break: keep-all;
+            min-width: 60px;
+            /* 너무 좁아지지 않게 */
+        }
     }
 
     /* 등록하기 버튼 */
