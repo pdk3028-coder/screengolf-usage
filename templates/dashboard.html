@@ -399,45 +399,86 @@
             font-size: 0.9rem !important;
         }
 
-        /* 모바일에서 상품명(첫번째 컬럼)은 줄바꿈 허용하여 표 너비 확보 */
-        table th:nth-child(1),
-        table td:nth-child(1) {
-            white-space: nowrap !important;
-            /* 다시 줄바꿈 방지 (짧다고 하셨음) */
+        /* 모바일 테이블 공통 스타일 축소 */
+        table th,
+        table td {
+            padding: 8px 4px !important;
+            /* 패딩 최소화 */
+            font-size: 0.85rem !important;
+            /* 폰트 사이즈 전체 축소 */
+        }
+
+        /* ___장바구니 테이블 최적화___ */
+        /* 1. 상품명: 자동 (가장 넓게) */
+        #cart-tbody td:nth-child(1),
+        table th:nth-child(1) {
             width: auto !important;
-            /* 자동 너비 */
+            white-space: nowrap !important;
         }
 
-        /* 나머지 컬럼들 너비 강제 축소 및 오버라이드 */
-        table th:nth-child(2),
-        table td:nth-child(2) {
-            width: 110px !important;
-            /* 수량 컬럼 */
-        }
-
-        table th:nth-child(3),
-        table td:nth-child(3) {
+        /* 2. 수량: 버튼 때문에 최소 공간 필요 (약 90px) */
+        #cart-tbody td:nth-child(2),
+        table th:nth-child(2) {
             width: 90px !important;
-            /* 소계 컬럼 */
         }
 
-        table th:nth-child(4),
-        table td:nth-child(4) {
-            width: 60px !important;
-            /* 관리 컬럼 */
+        /* 3. 소계: 금액 표시, 줄바꿈 방지 */
+        #cart-tbody td:nth-child(3),
+        table th:nth-child(3) {
+            width: auto !important;
+            /* 남는 공간 활용 */
+            white-space: nowrap !important;
+            letter-spacing: -0.5px;
+            /* 자간 축소 */
         }
 
-        /* 수량 조절 버튼/인풋 크기 모바일에서 축소 */
+        /* 4. 관리(삭제): 최소화 */
+        #cart-tbody td:nth-child(4),
+        table th:nth-child(4) {
+            width: 45px !important;
+            padding: 2px !important;
+        }
+
+        /* 수량 조절 버튼 더 작게 */
         .qty-btn {
-            width: 30px !important;
-            height: 30px !important;
-            font-size: 1rem !important;
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 0.9rem !important;
         }
 
         .qty-input {
-            width: 40px !important;
-            height: 30px !important;
-            font-size: 1rem !important;
+            width: 32px !important;
+            /* 인풋도 축소 */
+            height: 24px !important;
+            font-size: 0.9rem !important;
+        }
+
+        /* 삭제 버튼: 글자 대신 아이콘 느낌의 작은 버튼으로 변경 고려 or 세로쓰기 */
+        /* 여기서는 글자 크기를 확 줄이거나 패딩을 없앰 */
+        .btn-delete {
+            padding: 4px 2px !important;
+            font-size: 0.75rem !important;
+            min-width: unset !important;
+            /* 최소너비 해제 */
+            width: 100%;
+            word-break: break-all;
+            /* 필요하면 줄바꿈 */
+            line-height: 1.1;
+        }
+
+        /* ___최근 이용 내역 테이블 최적화___ */
+        /* 이용날짜/상품/수량/금액/관리 */
+        .table-responsive table th,
+        .table-responsive table td {
+            white-space: nowrap !important;
+            /* 모든 셀 한 줄 유지 */
+        }
+
+        /* 금액 숫자 폰트 약간 작게해서 한줄 유도 */
+        .table-responsive table td:nth-child(4) {
+            font-weight: bold;
+            font-size: 0.8rem !important;
+            letter-spacing: -0.5px;
         }
     }
 
