@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 style="margin-bottom: 20px;">안녕하세요, {{ name }}님!</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2 style="margin: 0;">안녕하세요, {{ name }}님!</h2>
+    <a href="{{ url_for('logout') }}"
+        style="background-color: #e74c3c; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">로그아웃</a>
+</div>
 
 <div class="card">
     <h2>이용 내역 등록</h2>

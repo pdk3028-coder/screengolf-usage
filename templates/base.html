@@ -12,17 +12,8 @@
 
 <body>
     <div class="container">
-        <header>
-            <h1><a href="/" style="color:white; text-decoration:none;">스크린골프 관리 시스템</a></h1>
-            <div class="header-links">
-                {% if session.get('user_id') %}
-                <span>{{ session['user_name'] }}님</span>
-                <a href="{{ url_for('logout') }}" class="btn-danger">로그아웃</a>
-                {% elif session.get('is_admin') %}
-                <span>관리자</span>
-                <a href="{{ url_for('logout') }}" class="btn-danger">로그아웃</a>
-                {% endif %}
-            </div>
+        <header style="justify-content: center; text-align: center;">
+            <h1 style="margin: 0;"><a href="/" style="color:white; text-decoration:none;">스크린골프 관리 시스템</a></h1>
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
