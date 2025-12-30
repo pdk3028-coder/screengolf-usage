@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>관리자 페이지</h2>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">사원/협력업체 대량 등록</h2>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+        <!-- 엑셀 파일 업로드 -->
+        <div style="flex: 1; min-width: 300px; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 10px;">방법 A. 엑셀 파일 업로드</h3>
+            <form action="{{ url_for('admin_upload_employees') }}" method="POST" enctype="multipart/form-data">
+                <p class="text-small" style="margin-bottom: 10px;">기존 사원명부 엑셀 파일을 그대로 업로드하세요.</p>
+                <div style="display: flex; gap: 5px;">
+                    <input type="file" name="file" accept=".xlsx, .xls" required
+                        style="border: 1px solid #ddd; padding: 5px; flex: 1;">
+                    <button type="submit" style="width: auto; padding: 5px 15px;">업로드</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 붙여넣기 설명 -->
+        <div style="flex: 1; min-width: 300px; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 10px;">방법 B. 엑셀 붙여넣기</h3>
+            <p class="text-small">
+                1. 엑셀에서 <strong>[사번] [이름] [비밀번호]</strong> 3개 열을 복사<br>
+                2. 아래 입력창에 붙여넣기 (Ctrl+V)<br>
+                3. [데이터 확인] 버튼 클릭 후 등록
+            </p>
+        </div>
+    </div>
+
+    <label for="bulk-input"><strong>붙여넣기 입력창:</strong></label>
+    <textarea id="bulk-input" placeholder="여기에 엑셀 데이터를 붙여넣으세요..."
+        style="height: 100px; margin-bottom: 10px;"></textarea>
+
+    <button id="btn-parse" class="btn-secondary" onclick="parseInput()">데이터 확인 (미리보기 및 수정)</button>
+
+    <div id="preview-area" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+        <h3 style="margin-bottom: 10px;">등록 대기 목록 (<span id="preview-count">0</span>명)</h3>
+        <p class="text-small" style="color: #666; margin-bottom: 10px;">* 아래 표 내용을 클릭하여 <strong>직접 수정</strong>할 수 있습니다.
+            불필요한 행은 <strong>삭제</strong>하세요.</p>
+
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">사번</th>
+                        <th style="width: 30%;">이름</th>
+                        <th style="width: 30%;">비밀번호</th>
+                        <th style="width: 10%;">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="preview-tbody">
+                </tbody>
+            </table>
+        </div>
+        <button id="btn-register" class="mt-2" onclick="registerBulkData()">위 목록으로 최종 등록하기</button>
+    </div>
+</div>
+
+<div class="card">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">
+        <h2 style="margin: 0; border: none;">최근 이용 내역</h2>
+        <a href="{{ url_for('admin_download') }}" target="_blank">
+            <button class="btn-secondary" style="width: auto; padding: 8px 15px; font-size: 0.9rem;">엑셀 다운로드</button>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>날짜</th>
+                    <th>등록시간</th>
+                    <th>사번</th>
+                    <th>이름</th>
+                    <th>상품</th>
+                    <th>수량</th>
+                    <th>금액</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if records %}
+                {% for r in records %}
+                <tr>
+                    <td>{{ r.usage_date }}</td>
+                    <td>{{ r.created_at[:19] }}</td>
+                    <td>{{ r.emp_id }}</td>
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.item_name }}</td>
+                    <td>{{ r.quantity }}게임</td>
+                    <td>{{ "{:,}".format(r.amount) }}원</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">등록된 이용 내역이 없습니다.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const bulkInput = document.getElementById('bulk-input');
+    const previewArea = document.getElementById('preview-area');
+    const previewTbody = document.getElementById('preview-tbody');
+    const previewCount = document.getElementById('preview-count');
+
+    function parseInput() {
+        const text = bulkInput.value;
+        if (!text.trim()) {
+            alert('데이터를 입력해주세요.');
+            return;
+        }
+
+        const lines = text.trim().split('\n');
+        previewTbody.innerHTML = '';
+        let count = 0;
+
+        lines.forEach((line, index) => {
+            const cols = line.split('\t').map(c => c.trim());
+            if (cols.length >= 3) { // 최소 3개 컬럼
+                const emp_id = cols[0];
+                const name = cols[1];
+                const password = cols[2];
+
+                if (emp_id && name) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td contenteditable="true" style="background:#fff;">${emp_id}</td>
+                        <td contenteditable="true" style="background:#fff;">${name}</td>
+                        <td contenteditable="true" style="background:#fff;">${password || ''}</td>
+                        <td><button class="btn-danger" style="padding: 2px 5px; font-size: 0.8rem;" onclick="this.closest('tr').remove(); updateCount();">삭제</button></td>
+                    `;
+                    previewTbody.appendChild(tr);
+                    count++;
+                }
+            }
+        });
+
+        updateCount();
+
+        if (count > 0) {
+            previewArea.style.display = 'block';
+        } else {
+            alert('유효한 데이터가 없습니다. (탭으로 구분된 3개 열 필요)');
+            previewArea.style.display = 'none';
+        }
+    }
+
+    function updateCount() {
+        const rows = previewTbody.querySelectorAll('tr');
+        previewCount.textContent = rows.length;
+        if (rows.length === 0) {
+            previewArea.style.display = 'none';
+        }
+    }
+
+    function registerBulkData() {
+        const rows = previewTbody.querySelectorAll('tr');
+        if (rows.length === 0) return;
+
+        if (!confirm(`${rows.length}명의 데이터를 등록하시겠습니까?`)) return;
+
+        const finalData = [];
+        rows.forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            finalData.push({
+                emp_id: tds[0].innerText.trim(),
+                name: tds[1].innerText.trim(),
+                password: tds[2].innerText.trim()
+            });
+        });
+
+        if (finalData.some(d => !d.emp_id || !d.name || !d.password)) {
+            alert('사번, 이름, 비밀번호가 비어있는 행이 있습니다. 확인해주세요.');
+            return;
+        }
+
+        fetch("{{ url_for('admin_bulk_add') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ data: finalData })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    bulkInput.value = '';
+                    previewArea.style.display = 'none';
+                    previewTbody.innerHTML = '';
+                } else {
+                    alert('오류 발생: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('서버 통신 오류');
+            });
+    }
+</script>
+{% endblock %}

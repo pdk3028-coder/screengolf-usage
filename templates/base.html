@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스크린골프 이용 내역 등록</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><a href="/" style="color:white; text-decoration:none;">스크린골프 관리 시스템</a></h1>
+            <div class="header-links">
+                {% if session.get('user_id') %}
+                <span>{{ session['user_name'] }}님</span>
+                <a href="{{ url_for('logout') }}" class="btn-danger">로그아웃</a>
+                {% elif session.get('is_admin') %}
+                <span>관리자</span>
+                <a href="{{ url_for('logout') }}" class="btn-danger">로그아웃</a>
+                {% endif %}
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        // 공통 스크립트가 필요하면 여기에 작성
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>
