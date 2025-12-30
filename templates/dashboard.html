@@ -350,16 +350,11 @@
         }
 
         h2 {
-            font-size: 1.15rem !important;
-            /* 제목 크기 적절히 축소 */
-            white-space: nowrap;
-            /* 한 줄 유지 */
+            font-size: 1.2rem;
+            white-space: nowrap !important;
+            /* 제목 줄바꿈 절대 방지 */
             overflow: hidden;
             text-overflow: ellipsis;
-            /* 넘치면 ... 처리 */
-            margin-bottom: 15px !important;
-            letter-spacing: -0.5px;
-            /* 자간 좁혀서 더 많이 들어가게 */
         }
 
         .form-group label {
@@ -376,8 +371,7 @@
 
         /* 상품 버튼 */
         .product-btn {
-            padding: 15px 10px;
-            /* 내부 여백 축소 */
+            padding: 15px;
         }
 
         .product-btn span:first-child {
@@ -388,225 +382,143 @@
             font-size: 0.9rem !important;
         }
 
-        /* 테이블 -> 카드 리스트 스타일 다듬기 */
-        table,
-        thead,
-        tbody,
-        th,
-        td,
-        tr {
-            display: block;
-        }
+        width: 30%;
+        text-align: left;
+    }
 
-        thead tr {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
+    /* 수량 조절 버튼 우측 정렬 보정 */
+    .qty-control {
+        margin-left: auto;
+    }
 
-        tr {
-            margin-bottom: 12px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            background: #fff;
-            box-shadow: none;
-            /* 그림자 제거로 깔끔하게 */
-        }
+    /* 이용 내역 테이블 */
+    .table-responsive tbody td:nth-of-type(1):before {
+        content: "이용날짜";
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: bold;
+        color: #666;
+    }
 
-        td {
-            border: none;
-            border-bottom: 1px solid #fcfcfc;
-            position: relative;
-            padding: 10px 15px 10px 35%;
-            /* 라벨 영역 축소 */
-            text-align: right;
-            min-height: 35px;
-            /* 높이 축소 */
-            font-size: 0.95rem;
-        }
+    .table-responsive tbody td:nth-of-type(2):before {
+        content: "상품";
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: bold;
+        color: #666;
+    }
 
-        td:last-child {
-            border-bottom: none;
-            justify-content: center;
-            /* 관리 버튼 등은 중앙 */
-            padding-left: 15px;
-            /* 라벨 없음 */
-            background: #fcfcfc;
-        }
+    .table-responsive tbody td:nth-of-type(3):before {
+        content: "수량";
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: bold;
+        color: #666;
+    }
 
-        /* 가상 요소로 라벨(헤더) 표시 */
-        /* 순서 중요: 상품명, 수량, 소계(금액), 관리 */
+    .table-responsive tbody td:nth-of-type(4):before {
+        content: "금액";
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: bold;
+        color: #666;
+    }
 
-        /* 장바구니 테이블 */
-        #cart-tbody td:nth-of-type(1):before {
-            content: "상품명";
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            color: #666;
-            width: 30%;
-            text-align: left;
-        }
+    /* 빈 내역 메시지 처리 */
+    #empty-cart-msg td,
+    .table-responsive tr td[colspan] {
+        text-align: center;
+        padding: 30px;
+        display: block;
+        width: 100%;
+    }
 
-        #cart-tbody td:nth-of-type(2):before {
-            content: "수량";
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            color: #666;
-            width: 30%;
-            text-align: left;
-        }
+    #empty-cart-msg td:before,
+    .table-responsive tr td[colspan]:before {
+        content: none !important;
+    }
 
-        #cart-tbody td:nth-of-type(3):before {
-            content: "소계";
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            color: #666;
-            width: 30%;
-            text-align: left;
-        }
+    /* 총 금액 영역 (tfoot) */
+    tfoot tr {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+    }
 
-        /* 수량 조절 버튼 우측 정렬 보정 */
-        .qty-control {
-            margin-left: auto;
-        }
+    tfoot td {
+        display: inline-block;
+        border: none;
+        padding: 0;
+        width: auto;
+        text-align: right;
+    }
 
-        /* 이용 내역 테이블 */
-        .table-responsive tbody td:nth-of-type(1):before {
-            content: "이용날짜";
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            color: #666;
-        }
+    tfoot td:first-child {
+        text-align: left;
+    }
 
-        .table-responsive tbody td:nth-of-type(2):before {
-            content: "상품";
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            color: #666;
-        }
+    /* 등록하기 버튼 */
+    button[onclick="openConfirmModal()"] {
+        padding: 18px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+        background-color: #2ecc71;
+        /* 더 산뜻한 초록색 */
+        color: white;
+        border: none;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+    }
 
-        .table-responsive tbody td:nth-of-type(3):before {
-            content: "수량";
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            color: #666;
-        }
+    /* 모달 전체 내역 테이블도 동일하게 카드화 */
+    #history-tbody td:nth-of-type(1):before {
+        content: "이용날짜";
+        position: absolute;
+        left: 15px;
+        font-weight: bold;
+        color: #666;
+    }
 
-        .table-responsive tbody td:nth-of-type(4):before {
-            content: "금액";
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-            color: #666;
-        }
+    #history-tbody td:nth-of-type(2):before {
+        content: "상품";
+        position: absolute;
+        left: 15px;
+        font-weight: bold;
+        color: #666;
+    }
 
-        /* 빈 내역 메시지 처리 */
-        #empty-cart-msg td,
-        .table-responsive tr td[colspan] {
-            text-align: center;
-            padding: 30px;
-            display: block;
-            width: 100%;
-        }
+    #history-tbody td:nth-of-type(3):before {
+        content: "수량";
+        position: absolute;
+        left: 15px;
+        font-weight: bold;
+        color: #666;
+    }
 
-        #empty-cart-msg td:before,
-        .table-responsive tr td[colspan]:before {
-            content: none !important;
-        }
+    #history-tbody td:nth-of-type(4):before {
+        content: "금액";
+        position: absolute;
+        left: 15px;
+        font-weight: bold;
+        color: #666;
+    }
 
-        /* 총 금액 영역 (tfoot) */
-        tfoot tr {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-        }
-
-        tfoot td {
-            display: inline-block;
-            border: none;
-            padding: 0;
-            width: auto;
-            text-align: right;
-        }
-
-        tfoot td:first-child {
-            text-align: left;
-        }
-
-        /* 등록하기 버튼 */
-        button[onclick="openConfirmModal()"] {
-            padding: 18px;
-            font-size: 1.1rem;
-            border-radius: 12px;
-            background-color: #2ecc71;
-            /* 더 산뜻한 초록색 */
-            color: white;
-            border: none;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
-        }
-
-        /* 모달 전체 내역 테이블도 동일하게 카드화 */
-        #history-tbody td:nth-of-type(1):before {
-            content: "이용날짜";
-            position: absolute;
-            left: 15px;
-            font-weight: bold;
-            color: #666;
-        }
-
-        #history-tbody td:nth-of-type(2):before {
-            content: "상품";
-            position: absolute;
-            left: 15px;
-            font-weight: bold;
-            color: #666;
-        }
-
-        #history-tbody td:nth-of-type(3):before {
-            content: "수량";
-            position: absolute;
-            left: 15px;
-            font-weight: bold;
-            color: #666;
-        }
-
-        #history-tbody td:nth-of-type(4):before {
-            content: "금액";
-            position: absolute;
-            left: 15px;
-            font-weight: bold;
-            color: #666;
-        }
-
-        /* 텍스트 줄바꿈 방지 및 말줄임 (필요시) */
-        .card h2 {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    /* 텍스트 줄바꿈 방지 및 말줄임 (필요시) */
+    .card h2 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     }
 </style>
 
