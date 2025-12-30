@@ -343,41 +343,52 @@
 
         /* 기본 레이아웃 조정 */
         .card {
-            padding: 1.2rem;
-            /* 패딩 축소 */
-            margin-bottom: 1.5rem;
-            border-radius: 16px;
+            padding: 15px;
+            /* 패딩 축소로 공간 확보 */
+            margin-bottom: 15px;
+            border-radius: 12px;
         }
 
         h2 {
-            font-size: 1.3rem;
-            /* 제목 크기 조정 */
+            font-size: 1.15rem !important;
+            /* 제목 크기 적절히 축소 */
+            white-space: nowrap;
+            /* 한 줄 유지 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* 넘치면 ... 처리 */
+            margin-bottom: 15px !important;
+            letter-spacing: -0.5px;
+            /* 자간 좁혀서 더 많이 들어가게 */
         }
 
         .form-group label {
-            font-size: 1rem;
+            font-size: 0.95rem;
+            color: #555;
         }
 
         input[type="date"] {
             width: 100%;
-            /* 날짜 입력 꽉 차게 */
-            max-width: none !important;
-            padding: 12px;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+            padding: 10px;
+            /* 입력창 높이 살짝 축소 */
+            font-size: 1rem;
         }
 
-        /* 상품 버튼 가로 배치 유지하되 비율 조정 */
+        /* 상품 버튼 */
         .product-btn {
-            padding: 20px 10px;
+            padding: 15px 10px;
+            /* 내부 여백 축소 */
         }
 
         .product-btn span:first-child {
-            font-size: 1.1rem !important;
+            font-size: 1rem !important;
         }
 
-        /* 테이블 -> 카드 리스트 변환 마법 (Mobile Table) */
+        .product-btn span:last-child {
+            font-size: 0.9rem !important;
+        }
+
+        /* 테이블 -> 카드 리스트 스타일 다듬기 */
         table,
         thead,
         tbody,
@@ -387,7 +398,6 @@
             display: block;
         }
 
-        /* 헤더 숨김 */
         thead tr {
             position: absolute;
             top: -9999px;
@@ -395,28 +405,24 @@
         }
 
         tr {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border: 1px solid #eee;
             border-radius: 8px;
             background: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            /* 둥근 모서리 유지 */
+            box-shadow: none;
+            /* 그림자 제거로 깔끔하게 */
         }
 
         td {
-            /* Behave  like a "row" */
             border: none;
-            border-bottom: 1px solid #f8f9fa;
+            border-bottom: 1px solid #fcfcfc;
             position: relative;
-            padding: 12px 15px 12px 40%;
-            /* 라벨 공간 확보 */
+            padding: 10px 15px 10px 35%;
+            /* 라벨 영역 축소 */
             text-align: right;
-            /* 내용 우측 정렬 */
-            min-height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
+            min-height: 35px;
+            /* 높이 축소 */
+            font-size: 0.95rem;
         }
 
         td:last-child {
