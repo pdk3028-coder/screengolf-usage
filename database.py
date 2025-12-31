@@ -1,7 +1,10 @@
 import sqlite3
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import hashlib
+
+# 한국 표준시 (KST) 설정
+KST = timezone(timedelta(hours=9))
 
 DB_NAME = 'screengolf.db'
 
@@ -87,7 +90,7 @@ def upsert_employee(emp_id, name, password_raw):
     c = conn.cursor()
     
     pw_hash = hash_val(password_raw)
-    now = datetime.now()
+    now = datetime.now(KST)
     
     try:
         c.execute('''
@@ -142,7 +145,7 @@ def upsert_employees_from_excel_file(filepath):
         
         conn = get_db_connection()
         c = conn.cursor()
-        now = datetime.now()
+        now = datetime.now(KST)
         count = 0
         
         for i in range(len(df)):
@@ -203,7 +206,7 @@ def add_usage_record(emp_id, usage_date, item_name, quantity, amount):
         conn.execute('''
             INSERT INTO usage_records (emp_id, usage_date, item_name, quantity, amount, created_at)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (emp_id, usage_date, item_name, quantity, amount, datetime.now()))
+        ''', (emp_id, usage_date, item_name, quantity, amount, datetime.now(KST)))
         conn.commit()
         return True
     except Exception as e:
