@@ -60,9 +60,22 @@ def init_db():
             quantity INTEGER DEFAULT 1,   -- 수량
             amount INTEGER DEFAULT 0,     -- 금액
             created_at TIMESTAMP,
+            is_canceled INTEGER DEFAULT 0, -- 취소 여부 (0: 정상, 1: 취소)
+            canceled_at TIMESTAMP,         -- 취소 일시
             FOREIGN KEY (emp_id) REFERENCES employees (emp_id)
         )
     ''')
+
+    # 마이그레이션: is_canceled 컬럼 추가
+    try:
+        cursor = c.execute("PRAGMA table_info(usage_records)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if 'is_canceled' not in columns:
+            print("Migrating: Adding is_canceled column...")
+            c.execute("ALTER TABLE usage_records ADD COLUMN is_canceled INTEGER DEFAULT 0")
+            c.execute("ALTER TABLE usage_records ADD COLUMN canceled_at TIMESTAMP")
+    except Exception as e:
+        print(f"Migration failed: {e}")
     
     # 시스템 설정 (관리자 비밀번호 등)
     c.execute('''
@@ -229,8 +242,13 @@ def get_usage_records(emp_id=None, limit=100):
     params = []
     
     if emp_id:
-        query += ' WHERE r.emp_id = ?'
+        query += ' WHERE r.emp_id = ? AND r.is_canceled = 0'
         params.append(emp_id)
+    else:
+        # 관리자 조회(전체)일 때도 기본적으로는 유효한 것만 보여주거나, UI에서 구분? 
+        # 일단 리스트에는 유효한 것만 보여주는 것이 깔끔함.
+        # 취소된 것은 엑셀 다운로드에서 확인.
+        query += ' WHERE r.is_canceled = 0'
         
     query += ' ORDER BY r.usage_date DESC, r.created_at DESC LIMIT ?'
     params.append(limit)
@@ -240,14 +258,15 @@ def get_usage_records(emp_id=None, limit=100):
     return [dict(row) for row in rows]
 
 def delete_usage_record(record_id, emp_id):
-    """특정 이용 내역 삭제 (본인 확인 포함)"""
+    """특정 이용 내역 삭제 (Soft Delete: 취소 처리)"""
     conn = get_db_connection()
     c = conn.cursor()
     try:
-        # 본인의 글인지 확인하고 삭제
-        c.execute("DELETE FROM usage_records WHERE id = ? AND emp_id = ?", (record_id, emp_id))
+        # 본인의 글인지 확인하고 Soft Delete 수행
+        now_kst = datetime.now(KST)
+        c.execute("UPDATE usage_records SET is_canceled = 1, canceled_at = ? WHERE id = ? AND emp_id = ?", (now_kst, record_id, emp_id))
         conn.commit()
-        return c.rowcount > 0 # 삭제된 행이 있으면 True
+        return c.rowcount > 0 # 업데이트된 행이 있으면 True
     except Exception as e:
         print(f"Error deleting record: {e}")
         return False
@@ -265,7 +284,12 @@ def get_all_usage_records_df():
             r.item_name as "상품명", 
             r.quantity as "수량", 
             r.amount as "금액", 
-            r.created_at as "등록일시"
+            CASE 
+                WHEN r.is_canceled = 1 THEN '취소' 
+                ELSE '정상' 
+            END as "상태",
+            r.created_at as "등록일시",
+            r.canceled_at as "취소일시"
         FROM usage_records r
         LEFT JOIN employees e ON r.emp_id = e.emp_id
         ORDER BY r.usage_date DESC, r.created_at DESC
