@@ -11,8 +11,17 @@
     <h2>이용 내역 등록</h2>
 
     <div class="form-group">
-        <label for="usage_date">이용 날짜</label>
-        <input type="date" id="usage_date" name="usage_date" required style="max-width: 200px;">
+        <label for="usage_date" style="display:block; margin-bottom:5px; font-weight:bold;">이용 날짜</label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="date" id="usage_date" name="usage_date" required
+                style="flex: 1; padding: 12px; font-size: 1.05rem; border: 1px solid #ccc; border-radius: 6px; background-color: #fff; color: #333; font-weight:bold;"
+                onclick="try{this.showPicker()}catch(e){}">
+            <button type="button"
+                onclick="try{document.getElementById('usage_date').showPicker()}catch(e){document.getElementById('usage_date').focus()}"
+                style="width: auto; padding: 12px 15px; background-color: #7f8c8d; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+                날짜변경
+            </button>
+        </div>
     </div>
 
     <!-- 상품 선택 버튼 영역 -->
