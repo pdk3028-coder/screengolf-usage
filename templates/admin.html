@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>관리자 페이지</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2 style="margin: 0;">관리자 페이지</h2>
+    <a href="{{ url_for('index') }}"
+        style="background-color: #34495e; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; font-weight: bold;">메인
+        화면으로</a>
+</div>
 
 <div class="card">
     <h2 style="margin-bottom: 20px;">사원/협력업체 대량 등록</h2>
