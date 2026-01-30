@@ -123,9 +123,10 @@
 <!-- 전체 내역 모달 -->
 <div id="historyModal" class="modal-overlay" style="display:none;">
     <div class="modal-content" style="max-width: 800px; width: 95%;">
-        <div class="modal-header">
-            <h3>전체 이용 내역</h3>
-            <span class="close-btn" onclick="closeHistoryModal()">&times;</span>
+        <div class="modal-header" style="justify-content: center; position: relative;">
+            <h3 style="margin: 0;">전체 이용 내역</h3>
+            <span class="close-btn" onclick="closeHistoryModal()"
+                style="position: absolute; right: 20px;">&times;</span>
         </div>
         <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
             <div style="overflow-x: auto;">
@@ -280,6 +281,13 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         /* 그림자 부드럽게 */
         margin-bottom: 2rem;
+    }
+
+    /* 테이블 내 텍스트 중앙 정렬 (PC 포함) */
+    .table-responsive table th,
+    .table-responsive table td {
+        text-align: center !important;
+        vertical-align: middle;
     }
 
     /* 모달 스타일 (심플하게 유지) */
