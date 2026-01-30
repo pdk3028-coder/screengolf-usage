@@ -4,9 +4,6 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2 style="margin: 0;">안녕하세요, {{ name }}님!</h2>
     <div style="display: flex; gap: 10px;">
-        <a href="{{ url_for('change_password') }}"
-            style="background-color: #3498db; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">비밀번호
-            변경</a>
         <a href="{{ url_for('logout') }}"
             style="background-color: #e74c3c; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">로그아웃</a>
     </div>
@@ -102,13 +99,14 @@
                 {% if records %}
                 {% for r in records %}
                 <tr>
-                    <td style="padding:6px 4px; font-size: 0.85rem;">{{ r.usage_date }}</td>
-                    <td style="padding:6px 4px; font-size: 0.85rem;">{{ r.item_name }}</td>
-                    <td style="padding:6px 4px; font-size: 0.85rem;">{{ r.quantity }}게임</td>
-                    <td style="padding:6px 4px; font-size: 0.85rem;">{{ "{:,}".format(r.amount) }}원</td>
-                    <td style="text-align:center; padding:6px 4px;">
+                    <td style="padding:6px 2px; font-size: 0.8rem;">{{ r.usage_date }}</td>
+                    <td style="padding:6px 2px; font-size: 0.8rem;">{{ r.item_name }}</td>
+                    <td style="padding:6px 2px; font-size: 0.8rem;">{{ r.quantity }}</td>
+                    <td style="padding:6px 6px; font-size: 0.85rem; font-weight: bold;">{{ "{:,}".format(r.amount) }}원
+                    </td>
+                    <td style="text-align:center; padding:6px 2px;">
                         <button onclick="deleteRecord(this.dataset.id);" data-id="{{ r.id }}"
-                            style="background:#ff7675; color:white; border:none; border-radius:4px; padding:2px 6px; cursor:pointer; font-size:0.75rem;">삭제</button>
+                            style="background:#ff7675; color:white; border:none; border-radius:4px; padding:1px 4px; cursor:pointer; font-size:0.7rem;">삭제</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -134,16 +132,21 @@
                 <table style="width: 100%; border-collapse: collapse; min-width: 500px;">
                     <thead>
                         <tr style="background:#f1f1f1; border-bottom:2px solid #ddd;">
-                            <th style="padding:8px 4px; text-align:left; white-space: nowrap; font-size: 0.9rem;">이용날짜
-                            </th>
-                            <th style="padding:8px 4px; text-align:left; white-space: nowrap; font-size: 0.9rem;">상품
-                            </th>
-                            <th style="padding:8px 4px; text-align:center; white-space: nowrap; font-size: 0.9rem;">수량
-                            </th>
-                            <th style="padding:8px 4px; text-align:right; white-space: nowrap; font-size: 0.9rem;">금액
-                            </th>
-                            <th style="padding:8px 4px; text-align:center; white-space: nowrap; font-size: 0.9rem;">관리
-                            </th>
+                            <th
+                                style="padding:8px 2px; text-align:left; white-space: nowrap; font-size: 0.85rem; width: 85px;">
+                                이용날짜</th>
+                            <th
+                                style="padding:8px 2px; text-align:left; white-space: nowrap; font-size: 0.85rem; width: 60px;">
+                                상품</th>
+                            <th
+                                style="padding:8px 2px; text-align:center; white-space: nowrap; font-size: 0.85rem; width: 45px;">
+                                수량</th>
+                            <th
+                                style="padding:8px 4px; text-align:right; white-space: nowrap; font-size: 0.85rem; width: auto; min-width: 90px;">
+                                금액</th>
+                            <th
+                                style="padding:8px 2px; text-align:center; white-space: nowrap; font-size: 0.85rem; width: 45px;">
+                                관리</th>
                         </tr>
                     </thead>
                     <tbody id="history-tbody">
@@ -775,12 +778,12 @@
         records.forEach(r => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="padding:6px 4px; border-bottom:1px solid #eee; font-size: 0.85rem;">${r.usage_date}</td>
-                <td style="padding:6px 4px; border-bottom:1px solid #eee; font-size: 0.85rem;">${r.item_name}</td>
-                <td style="padding:6px 4px; border-bottom:1px solid #eee; text-align:center; font-size: 0.85rem;">${r.quantity}게임</td>
-                <td style="padding:6px 4px; border-bottom:1px solid #eee; text-align:right; font-size: 0.85rem;">${r.amount.toLocaleString()}원</td>
-                <td style="padding:6px 4px; border-bottom:1px solid #eee; text-align:center;">
-                    <button onclick="deleteRecord(this.dataset.id)" data-id="${r.id}" style="background:#ff7675; color:white; border:none; border-radius:4px; padding:2px 6px; cursor:pointer; font-size:0.75rem;">삭제</button>
+                <td style="padding:6px 2px; border-bottom:1px solid #eee; font-size: 0.8rem;">${r.usage_date}</td>
+                <td style="padding:6px 2px; border-bottom:1px solid #eee; font-size: 0.8rem;">${r.item_name}</td>
+                <td style="padding:6px 2px; border-bottom:1px solid #eee; text-align:center; font-size: 0.8rem;">${r.quantity}</td>
+                <td style="padding:6px 6px; border-bottom:1px solid #eee; text-align:right; font-size: 0.85rem; font-weight: bold;">${r.amount.toLocaleString()}원</td>
+                <td style="padding:6px 2px; border-bottom:1px solid #eee; text-align:center;">
+                    <button onclick="deleteRecord(this.dataset.id)" data-id="${r.id}" style="background:#ff7675; color:white; border:none; border-radius:4px; padding:1px 4px; cursor:pointer; font-size:0.7rem;">삭제</button>
                 </td>
             `;
             tbody.appendChild(tr);
