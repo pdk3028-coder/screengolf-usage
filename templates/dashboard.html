@@ -107,7 +107,7 @@
                     <td>{{ r.quantity }}게임</td>
                     <td>{{ "{:,}".format(r.amount) }}원</td>
                     <td style="text-align:center;">
-                        <button onclick="deleteRecord({{ r.id }})"
+                        <button onclick="deleteRecord(this.dataset.id);" data-id="{{ r.id }}"
                             style="background:#ff7675; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.8rem;">삭제</button>
                     </td>
                 </tr>
@@ -316,10 +316,6 @@
     tfoot tr {
         /* display: flex; 제거 -> 테이블 레이아웃(colspan) 사용 */
         background: #f8f9fa;
-    }
-
-    tfoot td {
-        /* border: none; padding: 0; display: inline-block; 등 제거 */
     }
 
     .modal-header h3 {
@@ -554,7 +550,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    }
 </style>
 
 {% if show_pw_warning %}
@@ -571,8 +566,9 @@
             </p>
         </div>
         <div class="modal-footer">
-            <button class="btn-confirm" style="width: 100%;"
-                onclick="location.href='{{ url_for('change_password') }}'">지금 변경하기</button>
+            <a href="{{ url_for('change_password') }}" class="btn-confirm"
+                style="width: 100%; text-decoration: none; display: block; text-align: center; box-sizing: border-box;">지금
+                변경하기</a>
         </div>
     </div>
 </div>
@@ -812,7 +808,7 @@
                 <td style="padding:10px; border-bottom:1px solid #eee; text-align:center;">${r.quantity}게임</td>
                 <td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">${r.amount.toLocaleString()}원</td>
                 <td style="padding:10px; border-bottom:1px solid #eee; text-align:center;">
-                    <button onclick="deleteRecord(${r.id})" style="background:#ff7675; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.8rem;">삭제</button>
+                    <button onclick="deleteRecord(this.dataset.id)" data-id="${r.id}" style="background:#ff7675; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.8rem;">삭제</button>
                 </td>
             `;
             tbody.appendChild(tr);
