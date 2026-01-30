@@ -95,13 +95,17 @@ def init_db():
 
 # --- 사원 관리 ---
 
-def upsert_employee(emp_id, name, password_raw):
+def upsert_employee(emp_id, name, password_raw=None):
     """
     사원을 추가합니다. (중복 시 무시 - INSERT OR IGNORE)
+    password_raw가 None이면 emp_id를 비밀번호로 사용합니다.
     """
     conn = get_db_connection()
     c = conn.cursor()
     
+    if password_raw is None or str(password_raw).strip() == '':
+        password_raw = str(emp_id)
+
     pw_hash = hash_val(password_raw)
     now = datetime.now(KST)
     
@@ -150,11 +154,10 @@ def upsert_employees_from_excel_file(filepath):
                     
             return series.apply(convert_val)
 
-        # gift_project와 동일한 컬럼 인덱스 매핑
-        # 사번: 11, 이름: 12, 주민번호뒷자리(비밀번호): 26
+            # gift_project와 동일한 컬럼 인덱스 매핑 - 주민번호 로직 제거
+        # 사번: 11, 이름: 12
         emp_ids = clean_str(get_col_data(11))
         names = clean_str(get_col_data(12))
-        passwords = clean_str(get_col_data(26))
         
         conn = get_db_connection()
         c = conn.cursor()
@@ -164,13 +167,12 @@ def upsert_employees_from_excel_file(filepath):
         for i in range(len(df)):
             emp_id = emp_ids[i]
             name = names[i]
-            password = passwords[i]
             
             if not emp_id or not name:
                 continue
             
-            if not password: 
-                continue
+            # 초기 비밀번호는 사번과 동일하게 설정
+            password = emp_id
 
             pw_hash = hash_val(password)
             
@@ -210,6 +212,59 @@ def get_all_employees():
     rows = conn.execute('SELECT * FROM employees ORDER BY emp_id').fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+def update_password(emp_id, new_password):
+    """비밀번호 변경"""
+    conn = get_db_connection()
+    try:
+        pw_hash = hash_val(new_password)
+        conn.execute('UPDATE employees SET password_hash = ? WHERE emp_id = ?', (pw_hash, emp_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating password: {e}")
+        return False
+    finally:
+        conn.close()
+
+def reset_password_to_default(emp_id):
+    """비밀번호를 사번(초기값)으로 초기화"""
+    conn = get_db_connection()
+    try:
+        # 사번이 존재하는지 먼저 확인
+        user = conn.execute('SELECT * FROM employees WHERE emp_id = ?', (emp_id,)).fetchone()
+        if not user:
+             return False
+
+        # 비밀번호를 사번으로 해시하여 업데이트
+        default_pw_hash = hash_val(emp_id)
+        conn.execute('UPDATE employees SET password_hash = ? WHERE emp_id = ?', (default_pw_hash, emp_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error resetting password to default: {e}")
+        return False
+    finally:
+        conn.close()
+
+def reset_all_data():
+    """모든 데이터 초기화 (시스템 설정 제외)"""
+    conn = get_db_connection()
+    try:
+        # 사원 정보와 이용 내역 삭제 (순서 중요: FK 때문에 usage_records 먼저)
+        conn.execute('DELETE FROM usage_records')
+        conn.execute('DELETE FROM employees')
+        
+        # 시퀀스 초기화 (선택 사항)
+        conn.execute("DELETE FROM sqlite_sequence WHERE name IN ('usage_records', 'employees')")
+        
+        conn.commit()
+        return True, "모든 데이터가 초기화되었습니다."
+    except Exception as e:
+        print(f"Error resetting data: {e}")
+        return False, str(e)
+    finally:
+        conn.close()
 
 # --- 이용 내역 관리 ---
 

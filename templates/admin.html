@@ -110,6 +110,15 @@
     </div>
 </div>
 
+<div class="card" style="margin-top: 30px; border: 1px solid #e74c3c; background-color: #fff9f9;">
+    <h2 style="color: #c0392b; margin-bottom: 10px; border-bottom: none;">시스템 초기화</h2>
+    <p style="color: #e74c3c; margin-bottom: 20px; font-weight: bold;">
+        ※ 주의: 모든 사원 정보와 이용 내역이 영구적으로 삭제됩니다. 복구할 수 없습니다.
+    </p>
+    <button class="btn-danger" style="padding: 15px; font-size: 1.1rem; width: 100%; border-radius: 8px;"
+        onclick="resetAllData()">모든 데이터 삭제 (초기화)</button>
+</div>
+
 <script>
     const bulkInput = document.getElementById('bulk-input');
     const previewArea = document.getElementById('preview-area');
@@ -129,17 +138,15 @@
 
         lines.forEach((line, index) => {
             const cols = line.split('\t').map(c => c.trim());
-            if (cols.length >= 3) { // 최소 3개 컬럼
+            if (cols.length >= 2) { // 최소 2개 컬럼
                 const emp_id = cols[0];
                 const name = cols[1];
-                const password = cols[2];
 
                 if (emp_id && name) {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td contenteditable="true" style="background:#fff;">${emp_id}</td>
                         <td contenteditable="true" style="background:#fff;">${name}</td>
-                        <td contenteditable="true" style="background:#fff;">${password || ''}</td>
                         <td><button class="btn-danger" style="padding: 2px 5px; font-size: 0.8rem;" onclick="this.closest('tr').remove(); updateCount();">삭제</button></td>
                     `;
                     previewTbody.appendChild(tr);
@@ -153,7 +160,7 @@
         if (count > 0) {
             previewArea.style.display = 'block';
         } else {
-            alert('유효한 데이터가 없습니다. (탭으로 구분된 3개 열 필요)');
+            alert('유효한 데이터가 없습니다. (탭으로 구분된 2개 열 필요)');
             previewArea.style.display = 'none';
         }
     }
@@ -201,6 +208,28 @@
                     bulkInput.value = '';
                     previewArea.style.display = 'none';
                     previewTbody.innerHTML = '';
+                } else {
+                    alert('오류 발생: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('서버 통신 오류');
+            });
+    }
+
+    function resetAllData() {
+        if (!confirm('경고: 정말로 모든 데이터를 삭제하고 시스템을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+        if (!confirm('마지막 확인: 모든 사원 정보와 이용 내역이 삭제됩니다. 진행하시겠습니까?')) return;
+
+        fetch('/api/admin/reset', {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
                 } else {
                     alert('오류 발생: ' + data.message);
                 }

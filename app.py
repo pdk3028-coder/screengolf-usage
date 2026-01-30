@@ -32,13 +32,26 @@ def login():
         return redirect(url_for('dashboard'))
     else:
         # gift_project 스타일의 에러 메시지
-        flash('사번 또는 주민등록번호가 일치하지 않습니다.', 'error')
+        flash('아이디 또는 비밀번호가 일치하지 않습니다.', 'error')
         return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'POST':
+        emp_id = request.form.get('emp_id')
+        
+        if database.reset_password_to_default(emp_id):
+            flash(f'비밀번호가 초기화되었습니다. (초기 비밀번호: {emp_id})', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('존재하지 않는 아이디(사번)입니다.', 'error')
+            
+    return render_template('reset_password.html')
 
 @app.route('/dashboard')
 def dashboard():
@@ -51,7 +64,12 @@ def dashboard():
     # 최근 내역 조회 (최신 10건만)
     records = database.get_usage_records(emp_id, limit=10)
     
-    return render_template('dashboard.html', name=user_name, records=records)
+    # 초기 비밀번호(사번) 사용 여부 확인
+    is_default_pw = False
+    if database.verify_user(emp_id, emp_id):
+        is_default_pw = True
+    
+    return render_template('dashboard.html', name=user_name, records=records, show_pw_warning=is_default_pw)
 
 
         
@@ -115,6 +133,34 @@ def get_user_history():
     records = database.get_usage_records(emp_id, limit=10000)
     return jsonify({'success': True, 'data': records})
 
+@app.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    if 'user_id' not in session:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        emp_id = session['user_id']
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # 현재 비밀번호 확인 (보안 강화)
+        if not database.verify_user(emp_id, current_password):
+             flash('현재 비밀번호가 일치하지 않습니다.', 'error')
+             return render_template('change_password.html')
+
+        if new_password != confirm_password:
+            flash('새 비밀번호가 일치하지 않습니다.', 'error')
+            return render_template('change_password.html')
+            
+        if database.update_password(emp_id, new_password):
+            flash('비밀번호가 성공적으로 변경되었습니다.', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('비밀번호 변경 중 오류가 발생했습니다.', 'error')
+            
+    return render_template('change_password.html')
+
 # --- 관리자 페이지 ---
 
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -176,13 +222,24 @@ def admin_bulk_add():
         data = request.json.get('data', []) # [{'emp_id': '...', 'name': '...', 'password': '...'}, ...]
         count = 0
         for item in data:
-            if item.get('emp_id') and item.get('name') and item.get('password'):
-                if database.upsert_employee(item['emp_id'], item['name'], item['password']):
+            if item.get('emp_id') and item.get('name'):
+                # password가 없으면 None 전달 -> database에서 처리
+                password = item.get('password')
+                if database.upsert_employee(item['emp_id'], item['name'], password):
                     count += 1
         
         return jsonify({'success': True, 'count': count, 'message': f'{count}명 등록 완료'})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/admin/reset', methods=['POST'])
+def admin_reset_data():
+    """관리자 데이터 초기화 API"""
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    success, msg = database.reset_all_data()
+    return jsonify({'success': success, 'message': msg})
 
 @app.route('/admin/download')
 def admin_download():
