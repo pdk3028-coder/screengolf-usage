@@ -26,6 +26,22 @@
         </div>
     </div>
 
+    <!-- 방 번호 선택 영역 -->
+    <div class="form-group" style="margin-bottom: 20px;">
+        <label style="display:block; margin-bottom:5px; font-weight:bold;">방 선택</label>
+        <div style="display: flex; gap: 20px;">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="radio" name="room_number" value="1" checked
+                    style="width: 20px; height: 20px; margin-right: 8px;">
+                <span style="font-size: 1.1rem;">1번방</span>
+            </label>
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="radio" name="room_number" value="2" style="width: 20px; height: 20px; margin-right: 8px;">
+                <span style="font-size: 1.1rem;">2번방</span>
+            </label>
+        </div>
+    </div>
+
     <!-- 상품 선택 버튼 영역 -->
     <label style="display:block; margin-bottom:10px; font-weight:bold;">상품 선택 (클릭하여 담기)</label>
     <div style="display: flex; gap: 15px; margin-bottom: 20px;">
@@ -89,6 +105,7 @@
             <thead>
                 <tr>
                     <th style="padding:8px 4px; font-size: 0.9rem;">이용날짜</th>
+                    <th style="padding:8px 4px; font-size: 0.9rem;">방</th>
                     <th style="padding:8px 4px; font-size: 0.9rem;">상품</th>
                     <th style="padding:8px 4px; font-size: 0.9rem;">수량</th>
                     <th style="padding:8px 4px; font-size: 0.9rem;">금액</th>
@@ -100,6 +117,7 @@
                 {% for r in records %}
                 <tr>
                     <td style="padding:6px 2px; font-size: 0.8rem;">{{ r.usage_date }}</td>
+                    <td style="padding:6px 2px; font-size: 0.8rem;">{{ r.room_number if r.room_number else '-' }}</td>
                     <td style="padding:6px 2px; font-size: 0.8rem;">{{ r.item_name }}</td>
                     <td style="padding:6px 2px; font-size: 0.8rem;">{{ r.quantity }}</td>
                     <td style="padding:6px 6px; font-size: 0.85rem; font-weight: bold;">{{ "{:,}".format(r.amount) }}원
@@ -136,6 +154,9 @@
                             <th
                                 style="padding:8px 2px; text-align:left; white-space: nowrap; font-size: 0.85rem; width: 85px;">
                                 이용날짜</th>
+                            <th
+                                style="padding:8px 2px; text-align:center; white-space: nowrap; font-size: 0.85rem; width: 40px;">
+                                방</th>
                             <th
                                 style="padding:8px 2px; text-align:left; white-space: nowrap; font-size: 0.85rem; width: 60px;">
                                 상품</th>
@@ -699,7 +720,10 @@
                      </li>`;
         });
         html += '</ul>';
-        html = `<div style="margin-bottom:15px; color:#666; font-size:0.9rem;">이용 날짜: <strong>${usage_date}</strong></div>` + html;
+        html = `<div style="margin-bottom:15px; color:#666; font-size:0.9rem;">
+                    이용 날짜: <strong>${usage_date}</strong><br>
+                    방 번호: <strong>${document.querySelector('input[name="room_number"]:checked').value}번방</strong>
+                </div>` + html;
 
         modalBody.innerHTML = html;
         modalTotal.textContent = total.toLocaleString();
@@ -712,8 +736,10 @@
 
     function finalSubmit() {
         const usage_date = document.getElementById('usage_date').value;
+        const room_number = document.querySelector('input[name="room_number"]:checked').value;
         const payload = {
             usage_date: usage_date,
+            room_number: room_number,
             cart: cart.map(item => ({
                 item_name: item.name,
                 quantity: item.quantity,
@@ -787,6 +813,7 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="padding:6px 2px; border-bottom:1px solid #eee; font-size: 0.8rem;">${r.usage_date}</td>
+                <td style="padding:6px 2px; border-bottom:1px solid #eee; text-align:center; font-size: 0.8rem;">${r.room_number ? r.room_number + '번방' : '-'}</td>
                 <td style="padding:6px 2px; border-bottom:1px solid #eee; font-size: 0.8rem;">${r.item_name}</td>
                 <td style="padding:6px 2px; border-bottom:1px solid #eee; text-align:center; font-size: 0.8rem;">${r.quantity}</td>
                 <td style="padding:6px 6px; border-bottom:1px solid #eee; text-align:right; font-size: 0.85rem; font-weight: bold;">${r.amount.toLocaleString()}원</td>

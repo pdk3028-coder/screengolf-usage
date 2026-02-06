@@ -34,6 +34,22 @@
         </div>
     </div>
 
+    <div style="flex: 1; min-width: 150px; margin-top: 10px;">
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">방 선택</label>
+        <div style="display: flex; gap: 20px;">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="radio" name="proxy_room_number" value="1" checked
+                    style="width: 20px; height: 20px; margin-right: 8px;">
+                <span style="font-size: 1.1rem;">1번방</span>
+            </label>
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="radio" name="proxy_room_number" value="2"
+                    style="width: 20px; height: 20px; margin-right: 8px;">
+                <span style="font-size: 1.1rem;">2번방</span>
+            </label>
+        </div>
+    </div>
+
     <div style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
         <div style="flex: 2; min-width: 300px;">
             <label style="font-weight: bold; display: block; margin-bottom: 10px;">상품 선택</label>
@@ -74,6 +90,7 @@
             <thead style="position: sticky; top: 0; background-color: #f8f9fa; z-index: 1;">
                 <tr>
                     <th>날짜</th>
+                    <th>방 번호</th>
                     <th>등록시간</th>
                     <th>사번</th>
                     <th>이름</th>
@@ -87,6 +104,7 @@
                 {% for r in records %}
                 <tr>
                     <td>{{ r.usage_date }}</td>
+                    <td>{{ r.room_number if r.room_number else '-' }}</td>
                     <td>{{ r.created_at[:19] }}</td>
                     <td>{{ r.emp_id }}</td>
                     <td>{{ r.name }}</td>
@@ -97,7 +115,7 @@
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="7" class="text-center">등록된 이용 내역이 없습니다.</td>
+                    <td colspan="8" class="text-center">등록된 이용 내역이 없습니다.</td>
                 </tr>
                 {% endif %}
             </tbody>
@@ -367,6 +385,7 @@
         const selectBox = document.getElementById('proxy-user-select');
         const usageDate = document.getElementById('proxy-date').value;
         const quantity = document.getElementById('proxy-quantity').value;
+        const roomNumber = document.querySelector('input[name="proxy_room_number"]:checked').value;
 
         if (!selectBox.value || !selectedProxyItem) {
             alert('대상자와 상품을 선택해주세요.');
@@ -375,7 +394,7 @@
 
         const selectedText = selectBox.options[selectBox.selectedIndex].text;
 
-        if (!confirm(`${selectedText}님의 ${usageDate}일자 ${selectedProxyItem} ${quantity}게임 실적을 등록하시겠습니까?`)) return;
+        if (!confirm(`${selectedText}님의 ${usageDate}일자 (${roomNumber}번방) ${selectedProxyItem} ${quantity}게임 실적을 등록하시겠습니까?`)) return;
 
         fetch("{{ url_for('admin_add_usage') }}", {
             method: "POST",
@@ -384,7 +403,8 @@
                 emp_id: selectBox.value,
                 usage_date: usageDate,
                 item_name: selectedProxyItem,
-                quantity: quantity
+                quantity: quantity,
+                room_number: roomNumber
             })
         })
             .then(res => res.json())

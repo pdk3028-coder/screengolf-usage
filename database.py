@@ -59,12 +59,23 @@ def init_db():
             item_name TEXT NOT NULL,      -- 상품명 (9홀, 18홀)
             quantity INTEGER DEFAULT 1,   -- 수량
             amount INTEGER DEFAULT 0,     -- 금액
+            room_number INTEGER,          -- 방 번호 (1 or 2, Nullable)
             created_at TIMESTAMP,
             is_canceled INTEGER DEFAULT 0, -- 취소 여부 (0: 정상, 1: 취소)
             canceled_at TIMESTAMP,         -- 취소 일시
             FOREIGN KEY (emp_id) REFERENCES employees (emp_id)
         )
     ''')
+    
+    # 마이그레이션: room_number 컬럼 추가
+    try:
+        cursor = c.execute("PRAGMA table_info(usage_records)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if 'room_number' not in columns:
+            print("Migrating: Adding room_number column...")
+            c.execute("ALTER TABLE usage_records ADD COLUMN room_number INTEGER")
+    except Exception as e:
+        print(f"Migration failed (room_number): {e}")
 
     # 마이그레이션: is_canceled 컬럼 추가
     try:
@@ -276,13 +287,13 @@ def reset_all_data():
 
 # --- 이용 내역 관리 ---
 
-def add_usage_record(emp_id, usage_date, item_name, quantity, amount):
+def add_usage_record(emp_id, usage_date, item_name, quantity, amount, room_number=None):
     conn = get_db_connection()
     try:
         conn.execute('''
-            INSERT INTO usage_records (emp_id, usage_date, item_name, quantity, amount, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (emp_id, usage_date, item_name, quantity, amount, datetime.now(KST)))
+            INSERT INTO usage_records (emp_id, usage_date, item_name, quantity, amount, room_number, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (emp_id, usage_date, item_name, quantity, amount, room_number, datetime.now(KST)))
         conn.commit()
         return True
     except Exception as e:

@@ -88,6 +88,7 @@ def add_record():
             
         usage_date = data.get('usage_date')
         cart = data.get('cart', []) # [{'item_name': '9홀', 'quantity': 1, 'price': 2000}, ...]
+        room_number = data.get('room_number')
         
         if not usage_date or not cart:
             return jsonify({'success': False, 'message': '날짜 또는 상품이 선택되지 않았습니다.'}), 400
@@ -100,7 +101,7 @@ def add_record():
             amount = price * quantity
             
             if item_name and quantity > 0:
-                database.add_usage_record(emp_id, usage_date, item_name, quantity, amount)
+                database.add_usage_record(emp_id, usage_date, item_name, quantity, amount, room_number)
                 count += 1
         
         if count > 0:
@@ -274,6 +275,7 @@ def admin_add_usage():
         usage_date = data.get('usage_date')
         item_name = data.get('item_name')
         quantity = int(data.get('quantity', 1))
+        room_number = data.get('room_number')
         
         # 상품 가격 결정
         amount = 0
@@ -282,7 +284,7 @@ def admin_add_usage():
         elif item_name == '18홀':
             amount = 4000 * quantity
             
-        if database.add_usage_record(emp_id, usage_date, item_name, quantity, amount):
+        if database.add_usage_record(emp_id, usage_date, item_name, quantity, amount, room_number):
             return jsonify({'success': True, 'message': '등록되었습니다.'})
         else:
             return jsonify({'success': False, 'message': '데이터베이스 오류'})
