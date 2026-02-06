@@ -8,7 +8,105 @@
         화면으로</a>
 </div>
 
-<div class="card">
+<!-- 1. 대리 실적 등록 카드 -->
+<div class="card" style="border: 1px solid #3498db; background-color: #f0f8ff;">
+    <h2 style="color: #2980b9; margin-bottom: 20px;">대리 실적 등록 (관리자용)</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+        <div style="flex: 1; min-width: 200px;">
+            <label for="proxy-name-input" style="font-weight: bold; display: block; margin-bottom: 5px;">이름 검색</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="proxy-name-input" placeholder="이름을 입력하세요" style="flex: 1;"
+                    onkeypress="if(event.key==='Enter') searchProxyUser()">
+                <button onclick="searchProxyUser()" style="width: auto; padding: 10px 15px;">검색</button>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 250px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">대상자 선택</label>
+            <select id="proxy-user-select"
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: white;"
+                onchange="validateProxyForm()">
+                <option value="">검색 후 선택해주세요</option>
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label for="proxy-date" style="font-weight: bold; display: block; margin-bottom: 5px;">이용 날짜</label>
+            <input type="date" id="proxy-date">
+        </div>
+    </div>
+
+    <div style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 300px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 10px;">상품 선택</label>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="selectProxyItem('9홀')" id="btn-9hole" class="proxy-item-btn"
+                    style="flex: 1; background: #fff; color: #333; border: 1px solid #ccc;">
+                    9홀 (2,000원)
+                </button>
+                <button onclick="selectProxyItem('18홀')" id="btn-18hole" class="proxy-item-btn"
+                    style="flex: 1; background: #fff; color: #333; border: 1px solid #ccc;">
+                    18홀 (4,000원)
+                </button>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 100px;">
+            <label for="proxy-quantity" style="font-weight: bold; display: block; margin-bottom: 10px;">수량</label>
+            <input type="number" id="proxy-quantity" value="1" min="1" max="100"
+                style="width: 100%; padding: 10px; text-align: center; font-weight: bold;">
+        </div>
+    </div>
+
+    <button onclick="submitProxyUsage()" id="btn-proxy-submit" disabled
+        style="margin-top: 20px; background-color: #bdc3c7; cursor: not-allowed;">실적 등록하기</button>
+</div>
+
+<!-- 2. 최근 이용 내역 -->
+<div class="card" style="margin-top: 30px;">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">
+        <h2 style="margin: 0; border: none;">최근 이용 내역</h2>
+        <a href="{{ url_for('admin_download') }}" target="_blank">
+            <button class="btn-secondary" style="width: auto; padding: 8px 15px; font-size: 0.9rem;">엑셀 다운로드</button>
+        </a>
+    </div>
+
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto; border: 1px solid #eee;">
+        <table style="position: relative;">
+            <thead style="position: sticky; top: 0; background-color: #f8f9fa; z-index: 1;">
+                <tr>
+                    <th>날짜</th>
+                    <th>등록시간</th>
+                    <th>사번</th>
+                    <th>이름</th>
+                    <th>상품</th>
+                    <th>수량</th>
+                    <th>금액</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if records %}
+                {% for r in records %}
+                <tr>
+                    <td>{{ r.usage_date }}</td>
+                    <td>{{ r.created_at[:19] }}</td>
+                    <td>{{ r.emp_id }}</td>
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.item_name }}</td>
+                    <td>{{ r.quantity }}게임</td>
+                    <td>{{ "{:,}".format(r.amount) }}원</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">등록된 이용 내역이 없습니다.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 3. 사원/협력업체 대량 등록 -->
+<div class="card" style="margin-top: 30px;">
     <h2 style="margin-bottom: 20px;">사원/협력업체 대량 등록</h2>
 
     <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
@@ -65,102 +163,7 @@
     </div>
 </div>
 
-<div class="card">
-    <div
-        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">
-        <h2 style="margin: 0; border: none;">최근 이용 내역</h2>
-        <a href="{{ url_for('admin_download') }}" target="_blank">
-            <button class="btn-secondary" style="width: auto; padding: 8px 15px; font-size: 0.9rem;">엑셀 다운로드</button>
-        </a>
-    </div>
-
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>날짜</th>
-                    <th>등록시간</th>
-                    <th>사번</th>
-                    <th>이름</th>
-                    <th>상품</th>
-                    <th>수량</th>
-                    <th>금액</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if records %}
-                {% for r in records %}
-                <tr>
-                    <td>{{ r.usage_date }}</td>
-                    <td>{{ r.created_at[:19] }}</td>
-                    <td>{{ r.emp_id }}</td>
-                    <td>{{ r.name }}</td>
-                    <td>{{ r.item_name }}</td>
-                    <td>{{ r.quantity }}게임</td>
-                    <td>{{ "{:,}".format(r.amount) }}원</td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="6" class="text-center">등록된 이용 내역이 없습니다.</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- 대리 실적 등록 카드 (신규 추가) -->
-<div class="card" style="margin-top: 30px; border: 1px solid #3498db; background-color: #f0f8ff;">
-    <h2 style="color: #2980b9; margin-bottom: 20px;">대리 실적 등록 (관리자용)</h2>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
-        <div style="flex: 1; min-width: 200px;">
-            <label for="proxy-name-input" style="font-weight: bold; display: block; margin-bottom: 5px;">이름 검색</label>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="proxy-name-input" placeholder="이름을 입력하세요" style="flex: 1;"
-                    onkeypress="if(event.key==='Enter') searchProxyUser()">
-                <button onclick="searchProxyUser()" style="width: auto; padding: 10px 15px;">검색</button>
-            </div>
-        </div>
-        <div style="flex: 1; min-width: 250px;">
-            <label style="font-weight: bold; display: block; margin-bottom: 5px;">대상자 선택</label>
-            <select id="proxy-user-select"
-                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: white;"
-                onchange="validateProxyForm()">
-                <option value="">검색 후 선택해주세요</option>
-            </select>
-        </div>
-        <div style="flex: 1; min-width: 150px;">
-            <label for="proxy-date" style="font-weight: bold; display: block; margin-bottom: 5px;">이용 날짜</label>
-            <input type="date" id="proxy-date">
-        </div>
-    </div>
-
-    <div style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
-        <div style="flex: 2; min-width: 300px;">
-            <label style="font-weight: bold; display: block; margin-bottom: 10px;">상품 선택</label>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="selectProxyItem('9홀')" id="btn-9hole" class="proxy-item-btn"
-                    style="flex: 1; background: #fff; color: #333; border: 1px solid #ccc;">
-                    9홀 (2,000원)
-                </button>
-                <button onclick="selectProxyItem('18홀')" id="btn-18hole" class="proxy-item-btn"
-                    style="flex: 1; background: #fff; color: #333; border: 1px solid #ccc;">
-                    18홀 (4,000원)
-                </button>
-            </div>
-        </div>
-        <div style="flex: 1; min-width: 100px;">
-            <label for="proxy-quantity" style="font-weight: bold; display: block; margin-bottom: 10px;">수량</label>
-            <input type="number" id="proxy-quantity" value="1" min="1" max="100"
-                style="width: 100%; padding: 10px; text-align: center; font-weight: bold;">
-        </div>
-    </div>
-
-    <button onclick="submitProxyUsage()" id="btn-proxy-submit" disabled
-        style="margin-top: 20px; background-color: #bdc3c7; cursor: not-allowed;">실적 등록하기</button>
-</div>
-
+<!-- 4. 시스템 초기화 -->
 <div class="card" style="margin-top: 30px; border: 1px solid #e74c3c; background-color: #fff9f9;">
     <h2 style="color: #c0392b; margin-bottom: 10px; border-bottom: none;">시스템 초기화</h2>
     <p style="color: #e74c3c; margin-bottom: 20px; font-weight: bold;">
