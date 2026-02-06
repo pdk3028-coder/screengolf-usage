@@ -206,6 +206,14 @@ def verify_user(emp_id, password_raw):
             return user
     return None
 
+def find_employees_by_name(name):
+    """이름으로 사원 검색 (부분 일치)"""
+    conn = get_db_connection()
+    # 이름이 포함된 모든 사원 검색
+    rows = conn.execute('SELECT emp_id, name FROM employees WHERE name LIKE ?', (f'%{name}%',)).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
 def get_all_employees():
     """모든 사원 목록 반환 (관리자용)"""
     conn = get_db_connection()

@@ -241,21 +241,24 @@ def admin_reset_data():
     success, msg = database.reset_all_data()
     return jsonify({'success': success, 'message': msg})
 
-@app.route('/api/admin/check_user', methods=['POST'])
-def admin_check_user():
-    """관리자 대리 등록용 사용자 확인"""
+@app.route('/api/admin/search_user', methods=['POST'])
+def admin_search_user():
+    """관리자 대리 등록용 사용자 검색 (이름)"""
     if not session.get('is_admin'):
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
     try:
         data = request.json
-        emp_id = data.get('emp_id')
+        name = data.get('name')
         
-        user = database.get_employee(emp_id)
-        if user:
-            return jsonify({'success': True, 'name': user['name']})
+        if not name:
+             return jsonify({'success': False, 'message': '이름을 입력해주세요.'})
+
+        users = database.find_employees_by_name(name)
+        if users:
+            return jsonify({'success': True, 'users': users}) # results: [{'emp_id':..., 'name':...}, ...]
         else:
-            return jsonify({'success': False, 'message': '사용자를 찾을 수 없습니다.'})
+            return jsonify({'success': False, 'message': '검색 결과가 없습니다.'})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
