@@ -110,6 +110,46 @@
     </div>
 </div>
 
+<!-- 대리 실적 등록 카드 (신규 추가) -->
+<div class="card" style="margin-top: 30px; border: 1px solid #3498db; background-color: #f0f8ff;">
+    <h2 style="color: #2980b9; margin-bottom: 20px;">대리 실적 등록 (관리자용)</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+        <div style="flex: 1; min-width: 200px;">
+            <label for="proxy-emp-id" style="font-weight: bold; display: block; margin-bottom: 5px;">사번 입력</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="proxy-emp-id" placeholder="사번을 입력하세요" style="flex: 1;">
+                <button onclick="checkProxyUser()" style="width: auto; padding: 10px 15px;">확인</button>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">사원 이름</label>
+            <input type="text" id="proxy-name" readonly placeholder="사번 확인 필요"
+                style="background-color: #e9ecef; color: #495057; font-weight: bold;">
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label for="proxy-date" style="font-weight: bold; display: block; margin-bottom: 5px;">이용 날짜</label>
+            <input type="date" id="proxy-date">
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <label style="font-weight: bold; display: block; margin-bottom: 10px;">상품 선택</label>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="selectProxyItem('9홀')" id="btn-9hole" class="proxy-item-btn"
+                style="flex: 1; background: #fff; color: #333; border: 1px solid #ccc;">
+                9홀 (2,000원)
+            </button>
+            <button onclick="selectProxyItem('18홀')" id="btn-18hole" class="proxy-item-btn"
+                style="flex: 1; background: #fff; color: #333; border: 1px solid #ccc;">
+                18홀 (4,000원)
+            </button>
+        </div>
+    </div>
+
+    <button onclick="submitProxyUsage()" id="btn-proxy-submit" disabled
+        style="margin-top: 20px; background-color: #bdc3c7; cursor: not-allowed;">실적 등록하기</button>
+</div>
+
 <div class="card" style="margin-top: 30px; border: 1px solid #e74c3c; background-color: #fff9f9;">
     <h2 style="color: #c0392b; margin-bottom: 10px; border-bottom: none;">시스템 초기화</h2>
     <p style="color: #e74c3c; margin-bottom: 20px; font-weight: bold;">
@@ -216,6 +256,132 @@
                 console.error(err);
                 alert('서버 통신 오류');
             });
+    }
+
+    // --- 대리 실적 등록 관련 로직 ---
+    document.getElementById('proxy-date').valueAsDate = new Date();
+    let selectedProxyItem = null;
+
+    function checkProxyUser() {
+        const empId = document.getElementById('proxy-emp-id').value.trim();
+        if (!empId) {
+            alert('사번을 입력해주세요.');
+            return;
+        }
+
+        fetch("{{ url_for('admin_check_user') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ emp_id: empId })
+        })
+            .then(res => res.json())
+            .then(data => {
+                const nameInput = document.getElementById('proxy-name');
+                const submitBtn = document.getElementById('btn-proxy-submit');
+
+                if (data.success) {
+                    nameInput.value = data.name;
+                    nameInput.style.color = "#2ecc71"; // 성공 색상
+                    validateProxyForm();
+                } else {
+                    nameInput.value = "찾을 수 없음";
+                    nameInput.style.color = "#e74c3c";
+                    selectedProxyItem = null;
+                    updateProxyItemButtons();
+                    submitBtn.disabled = true;
+                    submitBtn.style.backgroundColor = "#bdc3c7";
+                    alert(data.message);
+                }
+            })
+            .catch(err => alert("서버 오류: " + err));
+    }
+
+    function selectProxyItem(item) {
+        selectedProxyItem = item;
+        updateProxyItemButtons();
+        validateProxyForm();
+    }
+
+    function updateProxyItemButtons() {
+        const btn9 = document.getElementById('btn-9hole');
+        const btn18 = document.getElementById('btn-18hole');
+
+        // 초기화
+        [btn9, btn18].forEach(btn => {
+            btn.style.backgroundColor = '#fff';
+            btn.style.color = '#333';
+            btn.style.borderColor = '#ccc';
+            btn.style.fontWeight = 'normal';
+        });
+
+        if (selectedProxyItem === '9홀') {
+            btn9.style.backgroundColor = '#3498db';
+            btn9.style.color = 'white';
+            btn9.style.fontWeight = 'bold';
+            btn9.style.borderColor = '#3498db';
+        } else if (selectedProxyItem === '18홀') {
+            btn18.style.backgroundColor = '#3498db';
+            btn18.style.color = 'white';
+            btn18.style.fontWeight = 'bold';
+            btn18.style.borderColor = '#3498db';
+        }
+    }
+
+    function validateProxyForm() {
+        const nameInput = document.getElementById('proxy-name');
+        const submitBtn = document.getElementById('btn-proxy-submit');
+
+        // 이름이 확인되었고(성공 색상으로 대충 판단 혹은 값 유무), 상품이 선택되었는지
+        if (nameInput.value && nameInput.value !== "찾을 수 없음" && selectedProxyItem) {
+            submitBtn.disabled = false;
+            submitBtn.style.backgroundColor = "#2ecc71";
+            submitBtn.style.cursor = "pointer";
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.style.backgroundColor = "#bdc3c7";
+            submitBtn.style.cursor = "not-allowed";
+        }
+    }
+
+    function submitProxyUsage() {
+        const empId = document.getElementById('proxy-emp-id').value.trim();
+        const usageDate = document.getElementById('proxy-date').value;
+        const nameInput = document.getElementById('proxy-name');
+
+        if (!empId || nameInput.value === "찾을 수 없음" || !selectedProxyItem) {
+            alert('정보를 모두 입력해주세요.');
+            return;
+        }
+
+        if (!confirm(`${nameInput.value}님의 ${usageDate}일자 ${selectedProxyItem} 실적을 등록하시겠습니까?`)) return;
+
+        fetch("{{ url_for('admin_add_usage') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                emp_id: empId,
+                usage_date: usageDate,
+                item_name: selectedProxyItem,
+                quantity: 1
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // 입력 초기화
+                    document.getElementById('proxy-emp-id').value = '';
+                    document.getElementById('proxy-name').value = '';
+                    selectedProxyItem = null;
+                    updateProxyItemButtons();
+                    validateProxyForm();
+                    // 페이지 새로고침하여 목록 갱신
+                    location.reload();
+                } else {
+                    alert("오류: " + data.message);
+                }
+            })
+            .catch(err => alert("서버 오류: " + err));
     }
 
     function resetAllData() {

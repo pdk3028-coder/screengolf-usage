@@ -241,6 +241,52 @@ def admin_reset_data():
     success, msg = database.reset_all_data()
     return jsonify({'success': success, 'message': msg})
 
+@app.route('/api/admin/check_user', methods=['POST'])
+def admin_check_user():
+    """관리자 대리 등록용 사용자 확인"""
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    try:
+        data = request.json
+        emp_id = data.get('emp_id')
+        
+        user = database.get_employee(emp_id)
+        if user:
+            return jsonify({'success': True, 'name': user['name']})
+        else:
+            return jsonify({'success': False, 'message': '사용자를 찾을 수 없습니다.'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/admin/add_usage', methods=['POST'])
+def admin_add_usage():
+    """관리자 대리 실적 등록"""
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    try:
+        data = request.json
+        emp_id = data.get('emp_id')
+        usage_date = data.get('usage_date')
+        item_name = data.get('item_name')
+        quantity = int(data.get('quantity', 1))
+        
+        # 상품 가격 결정
+        amount = 0
+        if item_name == '9홀':
+            amount = 2000 * quantity
+        elif item_name == '18홀':
+            amount = 4000 * quantity
+            
+        if database.add_usage_record(emp_id, usage_date, item_name, quantity, amount):
+            return jsonify({'success': True, 'message': '등록되었습니다.'})
+        else:
+            return jsonify({'success': False, 'message': '데이터베이스 오류'})
+            
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/admin/download')
 def admin_download():
     if not session.get('is_admin'):
