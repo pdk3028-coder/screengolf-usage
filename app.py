@@ -183,9 +183,12 @@ def admin_dashboard():
     if not session.get('is_admin'):
         return redirect(url_for('admin_login'))
     
-    # 최근 100건 조회
-    records = database.get_usage_records(limit=100)
-    return render_template('admin.html', records=records)
+    # 검색용 파라미터 획득
+    search_emp_id = request.args.get('search_emp_id')
+    
+    # 최근 100건 조회 (검색 파라미터 전달)
+    records = database.get_usage_records(limit=100, search_emp_id=search_emp_id)
+    return render_template('admin.html', records=records, search_emp_id=search_emp_id)
 
 @app.route('/admin/upload_employees', methods=['POST'])
 def admin_upload_employees():
@@ -241,6 +244,17 @@ def admin_reset_data():
     
     success, msg = database.reset_all_data()
     return jsonify({'success': success, 'message': msg})
+
+@app.route('/api/admin/cancel_record/<int:record_id>', methods=['POST'])
+def admin_cancel_record(record_id):
+    """관리자 권한 내역 취소 API"""
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    if database.admin_cancel_usage_record(record_id):
+        return jsonify({'success': True, 'message': '이용 내역이 관리자 권한으로 삭제(취소)되었습니다.'})
+    else:
+        return jsonify({'success': False, 'message': '삭제 실패: 존재하지 않는 내역이거나 권한이 없습니다.'})
 
 @app.route('/api/admin/search_user', methods=['POST'])
 def admin_search_user():

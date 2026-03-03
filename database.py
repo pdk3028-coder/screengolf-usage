@@ -302,10 +302,11 @@ def add_usage_record(emp_id, usage_date, item_name, quantity, amount, room_numbe
     finally:
         conn.close()
 
-def get_usage_records(emp_id=None, limit=100):
+def get_usage_records(emp_id=None, limit=100, search_emp_id=None):
     """
     이용 내역 조회. 
-    emp_id가 있으면 해당 사원만, 없으면 전체(관리자용, 최신순).
+    emp_id가 있으면 해당 사원만(사용자용), 없으면 전체(관리자용, 최신순).
+    search_emp_id가 있으면 관리자 모드에서 특정 사원의 내역만 필터링.
     """
     conn = get_db_connection()
     query = '''
@@ -323,6 +324,9 @@ def get_usage_records(emp_id=None, limit=100):
         # 일단 리스트에는 유효한 것만 보여주는 것이 깔끔함.
         # 취소된 것은 엑셀 다운로드에서 확인.
         query += ' WHERE r.is_canceled = 0'
+        if search_emp_id:
+            query += ' AND r.emp_id = ?'
+            params.append(search_emp_id)
         
     query += ' ORDER BY r.usage_date DESC, r.created_at DESC LIMIT ?'
     params.append(limit)
@@ -343,6 +347,21 @@ def delete_usage_record(record_id, emp_id):
         return c.rowcount > 0 # 업데이트된 행이 있으면 True
     except Exception as e:
         print(f"Error deleting record: {e}")
+        return False
+    finally:
+        conn.close()
+
+def admin_cancel_usage_record(record_id):
+    """관리자용 특정 이용 내역 삭제 (Soft Delete: 취소 처리). 사번 검증 없음."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    try:
+        now_kst = datetime.now(KST)
+        c.execute("UPDATE usage_records SET is_canceled = 1, canceled_at = ? WHERE id = ?", (now_kst, record_id))
+        conn.commit()
+        return c.rowcount > 0 # 업데이트된 행이 있으면 True
+    except Exception as e:
+        print(f"Error admin canceling record: {e}")
         return False
     finally:
         conn.close()
